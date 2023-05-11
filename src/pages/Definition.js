@@ -38,7 +38,7 @@ const Definition = () => {
             .catch((e) => {
                 console.log(e.message)
             })
-    }, []);
+    });
 
     if (notFound === true) {
         return (

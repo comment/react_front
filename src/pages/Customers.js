@@ -38,6 +38,7 @@ const Customers = () => {
             return response.json();
         }).then((data) => {
             toggleShow();
+            setCustomers([...customers, data.customer])
         }).catch((e) => {
             console.log(e)
         })

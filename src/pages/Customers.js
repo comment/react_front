@@ -1,25 +1,28 @@
 import React from 'react';
 import {useState, useEffect} from "react";
+import { Link } from "react-router-dom";
+import { baseUrl } from "../shared";
 
 const Customers = () => {
 
     const [customers, setCustomers] = useState([])
 
     useEffect(() => {
-        console.log('fetching...');
-            fetch('http://localhost:8000/api/customers/')
+        const url = baseUrl + 'api/customers/';
+            fetch(url)
             .then((response) => response.json())
             .then((data) => {
                 setCustomers(data.customers);
-                console.log(data);
             })
-    }, [])
+    })
 
     return (
         <div>
             <h1>Customers from api</h1>
             {customers ? customers.map((customer) => {
-                return <p>{customer.name}</p>
+                return <p key={customer.id}>
+                    <Link to={'/customer/' + customer.id}>{customer.name}</Link>
+                </p>
             }) : null}
         </div>
     );

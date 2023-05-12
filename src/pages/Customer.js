@@ -1,17 +1,23 @@
-import React, { useState } from 'react';
-import { Link, useParams } from "react-router-dom";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { baseUrl } from "../shared";
 
 const Customer = () => {
 
-    let {id} = useParams();
-    const [customer, setCustomer] = useState([]);
-    const [notFound, setNotFound] = useState([]);
-    const [error, setError] = useState([]);
-    let navigate = useNavigate();
+    const {id} = useParams();
+    const navigate = useNavigate();
+    const [customer, setCustomer] = useState();
+    const [tempCustomer, setTempCustomer] = useState();
+    const [notFound, setNotFound] = useState();
+    const [error, setError] = useState();
+    const [changed, setChanged] = useState(false);
 
+
+    useEffect(() => {
+        //console.log('customer', customer)
+        //console.log('tmpcustomer', tempCustomer)
+        //console.log(changed)
+    })
 
     useEffect(() => {
         const url = baseUrl + 'api/customers/' + id;
@@ -34,10 +40,11 @@ const Customer = () => {
             })
             .then((data) => {
                 setCustomer(data.customer);
+                setTempCustomer(data.customer);
             }).catch((e) => {
             console.log(e.message)
         })
-    });
+    }, []);
 
     if (notFound === true) {
         return (
@@ -57,15 +64,83 @@ const Customer = () => {
         )
     }
 
+    function updateCustomer() {
+
+        const url = baseUrl + 'api/customers/';
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body : JSON.stringify(tempCustomer)
+            })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                setCustomer(data.customer)
+            })
+            .catch((e) => {
+            console.log(e)
+        })
+    }
+
     return (
         <div>
             {customer ?
                 <div>
-                    <p>{customer.id}</p>
-                    <p>{customer.name}</p>
-                    <p>{customer.industry}</p>
+                    <input
+                        className="m-2 block px-2"
+                        type="text"
+                        value={tempCustomer.name}
+                        onChange={(e) => {
+                            setChanged(true)
+                            setTempCustomer({...tempCustomer, name: e.target.value})
+                        }
+                        }
+                    />
+                    <input
+                        className="m-2 block px-2"
+                        type="text"
+                        value={tempCustomer.industry}
+                        onChange={(e) => {
+                            setChanged(true)
+                            setTempCustomer({...tempCustomer, industry: e.target.value})
+                        }
+                        }
+                    />
+                    {changed ? <>
+                        <button onClick={(e) => {
+                                setTempCustomer({...customer})
+                                setChanged(false)
+                            }
+                        }>Cancel</button>{''}
+                        <button onClick={(e) => {
+                            return updateCustomer()
+                        }
+                        }>Save</button>
+                    </> : null}
                 </div>
-            : null}
+                : null}
+            <button onClick={(e) => {
+                const url = baseUrl + 'api/customers/' + id;
+
+                fetch(url, {
+                    method: 'DELETE', headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error('Something went wrong')
+                        }
+                        navigate('/customers')
+                    }).catch((e) => {
+                    console.log(e)
+                })
+            }}>Delete
+            </button>
+            <br/>
             <Link to={'/customers'}>Go back</Link>
         </div>
     );

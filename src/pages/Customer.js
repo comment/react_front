@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { baseUrl } from "../shared";
-import Button from 'react-bootstrap/Button';
 
 const Customer = () => {
 

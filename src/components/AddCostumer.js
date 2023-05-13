@@ -7,9 +7,7 @@ export default function AddCostumer(props) {
     const [name, setName] = useState('');
     const [industry, setIndustry] = useState('');
 
-    const [show, setShow] = useState(props.show);
-
-    const handleShow = () => setShow(true);
+    const [setShow] = useState(props.show);
     const handleClose = () => setShow(false);
 
     return (

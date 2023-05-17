@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from "react-router-dom";
+import React, { useContext,useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { baseUrl } from "../shared";
+import { LoginContext } from "../App";
 
 const Customer = () => {
-
+    const [loggedIn, setLoggedIn] = useContext(LoginContext)
     const {id} = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [customer, setCustomer] = useState();
     const [tempCustomer, setTempCustomer] = useState();
     const [notFound, setNotFound] = useState();
@@ -27,12 +29,31 @@ const Customer = () => {
 
     useEffect(() => {
         const url = baseUrl + 'api/customers/' + id;
-        fetch(url)
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('access')
+            },
+            body: JSON.stringify(tempCustomer)
+        })
             .then((response) => {
                 if (response.status === 404) {
                     setNotFound(true)
                 } else if (response.status === 401) {
-                    navigate('/login')
+                    setLoggedIn(false)
+                    navigate('/login', {
+                        state: {
+                            previousUrl: location.pathname
+                        }
+                    })
+                } else if(response.status === 401){
+                    setLoggedIn(false)
+                    navigate('/login', {
+                        state: {
+                            previousUrl: location.pathname
+                        }
+                    })
                 } else if (response.status === 500) {
                     setError(true)
                 }
@@ -67,11 +88,20 @@ const Customer = () => {
         fetch(url, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('access')
             },
             body: JSON.stringify(tempCustomer)
         })
             .then((response) => {
+                if (response.status === 401) {
+                    setLoggedIn(false)
+                    navigate('/login', {
+                        state: {
+                            previousUrl: location.pathname
+                        }
+                    })
+                }
                 if (!response.ok) throw new Error('something went wrong')
                 return response.json();
             })
@@ -161,10 +191,18 @@ const Customer = () => {
 
                         fetch(url, {
                             method: 'DELETE', headers: {
-                                'Content-Type': 'application/json'
+                                'Content-Type': 'application/json',
+                                Authorization: 'Bearer ' + localStorage.getItem('access')
                             }
                         })
                             .then((response) => {
+                                if (response.status === 401) {
+                                    navigate('/login', {
+                                        state: {
+                                            previousUrl: location.pathname
+                                        }
+                                    })
+                                }
                                 if (!response.ok) {
                                     throw new Error('Something went wrong')
                                 }

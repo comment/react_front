@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import NotFound from "../components/NotFound";
 import DefinitionSearch from "../components/DefinitionSearch";
+import { LoginContext } from "../App";
 
 const Definition = () => {
-
+    const [loggedIn, setLoggedIn] = useContext(LoginContext)
     const [word, setWord] = useState('');
     const [notFound, setNotFound] = useState(false);
     const [error, setError] = useState(false);
-    let {search} = useParams();
-    let navigate = useNavigate();
+    const {search} = useParams();
+    const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         //const url = 'https://httpstat.us/500'
@@ -20,7 +22,12 @@ const Definition = () => {
                 if (response.status === 404) {
                     setNotFound(true)
                 } else if (response.status === 401) {
-                    navigate('/login')
+                    setLoggedIn(false)
+                    navigate('/login', {
+                        state: {
+                            previousUrl: location.pathname
+                        }
+                    })
                 } else if (response.status === 500) {
                     setError(true)
                 }

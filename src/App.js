@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import { createContext, useEffect, useState } from "react";
 import { baseUrl } from "./shared";
 import Register from "./pages/Register";
+import Calendar from "./pages/Calendar";
 
 export const LoginContext = createContext();
 
@@ -62,6 +63,7 @@ function App() {
                         <Route path='/dictionary/:search' element={<Definition/>}/>
                         <Route path='/customers' element={<Customers/>}/>
                         <Route path='/customer/:id' element={<Customer/>}/>
+                        <Route path='/calendar/' element={<Calendar/>}/>
                         <Route path='/login/' element={<Login/>}/>
                         <Route path='/register/' element={<Register/>}/>
                         <Route path='/404' element={<NotFound/>}/>

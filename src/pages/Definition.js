@@ -1,53 +1,24 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import NotFound from "../components/NotFound";
 import DefinitionSearch from "../components/DefinitionSearch";
-import { LoginContext } from "../App";
+import useFetch from "../hooks/UseFetch";
 
 const Definition = () => {
-    const [loggedIn, setLoggedIn] = useContext(LoginContext)
-    const [word, setWord] = useState('');
-    const [notFound, setNotFound] = useState(false);
-    const [error, setError] = useState(false);
     const {search} = useParams();
-    const navigate = useNavigate();
-    const location = useLocation();
+    const {request, data: [{meanings: word}] = [{}], errorStatus} = useFetch(
+        'https://api.dictionaryapi.dev/api/v2/entries/en/' + search,
+        {
+            method: 'GET'
+        }
+    );
 
     useEffect(() => {
-        //const url = 'https://httpstat.us/500'
-        const url = 'https://api.dictionaryapi.dev/api/v2/entries/en/' + search
-        fetch(url)
-            .then((response) => {
-                if (response.status === 404) {
-                    setNotFound(true)
-                } else if (response.status === 401) {
-                    setLoggedIn(false)
-                    navigate('/login', {
-                        state: {
-                            previousUrl: location.pathname
-                        }
-                    })
-                } else if (response.status === 500) {
-                    setError(true)
-                }
+        request();
+    })
 
-                if (!response.ok) {
-                    setError(true)
-                    throw new Error('Something went wrong')
-                }
-
-                return response.json()
-            })
-            .then((data) => {
-                setWord(data[0].meanings)
-            })
-            .catch((e) => {
-                console.log(e.message)
-            })
-    });
-
-    if (notFound === true) {
+    if (errorStatus === 404) {
         return (
             <>
                 <NotFound/>
@@ -56,7 +27,7 @@ const Definition = () => {
         )
     }
 
-    if (error === true) {
+    if (errorStatus) {
         return (
             <>
                 <p>Something went wrong, try again</p>
@@ -80,7 +51,7 @@ const Definition = () => {
                         )
                     })}
                     <p>Search again:</p>
-                    <DefinitionSearch />
+                    <DefinitionSearch/>
                 </>
             ) : null
 

@@ -4,7 +4,7 @@ import { baseUrl } from "../shared";
 import { LoginContext } from "../App";
 
 const Customer = () => {
-    const [loggedIn, setLoggedIn] = useContext(LoginContext)
+    const [setLoggedIn] = useContext(LoginContext)
     const {id} = useParams();
     const navigate = useNavigate();
     const location = useLocation();
